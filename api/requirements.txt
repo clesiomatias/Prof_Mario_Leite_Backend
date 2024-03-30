@@ -1,0 +1,6 @@
+
+Flask
+PyJWT
+gunicorn
+python-dotenv
+flask-cors
