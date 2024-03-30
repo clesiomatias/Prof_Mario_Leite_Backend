@@ -87,18 +87,21 @@ def init_db():
 if not os.path.exists(DB_FILE):
     init_db()
 
+
 # Função para fazer upload de arquivos
-@app.route('/upload', methods=['POST'])
+@app.route("/upload", methods=["POST"])
 def upload_file():
-   
-    if 'file' not in request.files:
-        return jsonify({'error': 'Nenhum arquivo enviado'}), 400
+    if "file" not in request.files:
+        return jsonify({"error": "Nenhum arquivo enviado"}), 400
 
-    file = request.files['file']
-    uploader = request.form['uploader']
+    file = request.files["file"]
+    uploader = request.form["uploader"]
 
-    if file.filename == '':
-        return jsonify({'error': 'Nenhum arquivo selecionado'}), 400
+    if file.filename == "":
+        return jsonify({"error": "Nenhum arquivo selecionado"}), 400
+
+    # Define o nome do arquivo usando o nome original do arquivo escolhido pelo usuário
+    filename = secure_filename(file.filename)
 
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -107,15 +110,19 @@ def upload_file():
     count = cursor.fetchone()[0]
 
     if count > 0:
-        return jsonify({'error': 'Você já fez upload de um arquivo'}), 400
+        return jsonify({"error": "Você já fez upload de um arquivo"}), 400
 
-    cursor.execute("INSERT INTO files (filename, uploader) VALUES (?, ?)", (file.filename, uploader))
+    cursor.execute(
+        "INSERT INTO files (filename, uploader) VALUES (?, ?)", (filename, uploader)
+    )
     conn.commit()
     conn.close()
 
-    file.save(os.path.join('uploads', file.filename))
+    # Salva o arquivo com o nome escolhido pelo usuário
+    file.save(os.path.join("uploads", filename))
 
-    return jsonify({'message': 'Arquivo enviado com sucesso'}), 201
+    return jsonify({"message": "Arquivo enviado com sucesso"}), 201
+
 
 # Função para listar os arquivos disponíveis para download
 @app.route('/files', methods=['GET'])
