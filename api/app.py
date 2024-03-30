@@ -7,6 +7,7 @@ import jwt
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 app = Flask(__name__)
